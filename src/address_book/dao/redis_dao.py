@@ -10,13 +10,7 @@ class RedisDAO:
     @staticmethod
     async def get(key: str) -> Optional[Any]:
         """Получение значения по ключу"""
-        value = await redis_client.get(key)
-        if value:
-            try:
-                return json.loads(value)
-            except json.JSONDecodeError:
-                return value.decode() if isinstance(value, bytes) else value
-        return None
+        return await redis_client.get(key)
 
     @staticmethod
     async def set(key: str, value: Any, ttl: Optional[int] = None) -> bool:
@@ -24,7 +18,7 @@ class RedisDAO:
         try:
             if isinstance(value, (dict, list)):
                 value = json.dumps(value)
-            
+
             if ttl:
                 return await redis_client.setex(key, ttl, value)
             else:
