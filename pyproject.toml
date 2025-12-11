@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "Address-Book"
+version = "1.0.0"
+description = "Сервис для хранения и управления связками 'телефон-адрес'"
+authors = ["Marshansky Pavel"]
+packages = [
+    {include = "src"},
+]
+
+[tool.poetry.dependencies]
+python = ">=3.12.0"
+fastapi = "^0.124.2"
+pydantic-settings = "^2.12.0"
+pydantic = "^2.12.5"
+gunicorn = "^23.0.0"
+redis = "^7.1.0"
+uvicorn = {extras = ["standard"], version = "^0.38.0"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
