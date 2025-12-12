@@ -40,11 +40,16 @@ class RedisClient:
 
         try:
             value = await self.client.get(key)
-            if value:
+            if value is None:
+                return None
+
+            try:
                 return json.loads(value)
+            except json.JSONDecodeError:
+                return value
         except Exception as e:
             logger.error(f'Error getting key {key}: {e}')
-        return None
+            return None
 
     async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
         """Сохранение значения с TTL"""

@@ -124,10 +124,7 @@ async def update_address(
 
     updated_data = await RedisDAO.get(key=phone)
 
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content=updated_data,
-    )
+    return updated_data
 
 
 @router.delete(

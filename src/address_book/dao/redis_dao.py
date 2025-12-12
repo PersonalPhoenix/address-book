@@ -1,7 +1,10 @@
-import json
+import logging
 from typing import Optional, Any
 
 from src.redis.redis_client import redis_client
+
+
+logger = logging.getLogger(__name__)
 
 
 class RedisDAO:
@@ -15,39 +18,32 @@ class RedisDAO:
     @staticmethod
     async def set(key: str, value: Any, ttl: Optional[int] = None) -> bool:
         """Сохранение значения"""
-        try:
-            if isinstance(value, (dict, list)):
-                value = json.dumps(value)
-
-            if ttl:
-                return await redis_client.setex(key, ttl, value)
-            else:
-                return await redis_client.set(key, value)
-        except Exception:
-            return False
+        return await redis_client.set(key, value, ttl)
 
     @staticmethod
     async def exists(key: str) -> bool:
         """Проверка существования ключа"""
-        return await redis_client.exists(key) > 0
+        return await redis_client.exists(key)
 
     @staticmethod
     async def delete(key: str) -> bool:
         """Удаление ключа"""
-        return await redis_client.delete(key) > 0
+        return await redis_client.delete(key)
 
     @staticmethod
     async def update(key: str, update_data: dict, ttl: Optional[int] = None) -> bool:
-        """Обновление значения по ключу"""
+        """Обновление словаря по ключу"""
         existing_data = await RedisDAO.get(key)
 
         if existing_data is None:
             return False
 
-        if isinstance(existing_data, dict):
-            existing_data.update(update_data)
-            updated_data = existing_data
-        else:
-            updated_data = update_data
+        if not isinstance(existing_data, dict):
+            logger.warning(
+                f'Key {key} contains non-dict data: {type(existing_data)}'
+            )
+            return False
 
-        return await RedisDAO.set(key, updated_data, ttl)
+        existing_data.update(update_data)
+
+        return await RedisDAO.set(key, existing_data, ttl)
